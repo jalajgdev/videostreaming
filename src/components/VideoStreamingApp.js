@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Snackbar } from "@mui/material";
 import RecordIcon from "@mui/icons-material/FiberManualRecord";
 
 const VideoStreamingApp = () => {
@@ -36,29 +36,48 @@ const VideoStreamingApp = () => {
   const videoRefs = useRef([]);
   const mediaRecorderRef = useRef(null);
   const [recordingProgress, setRecordingProgress] = useState(0);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isLowConnection, setIsLowConnection] = useState(false); // State to track low connection
+  const [noInternetConnection, setNoInternetConnection] = useState(false); // State to track no internet connection
 
   useEffect(() => {
     const interval = setInterval(() => {
       const nextIndex = (currentIndex) => (currentIndex + 1) % videos.length;
       handleVideoSwitch(nextIndex);
     }, 6000);
-    videoRefs.current[0].addEventListener('waiting', handleBuffering);
+    videoRefs.current[0].addEventListener("waiting", handleBuffering);
 
     return () => clearInterval(interval);
   }, [videos]);
 
   useEffect(() => {
     videoRefs.current.forEach((ref, index) => {
-      ref.addEventListener('waiting', handleBuffering);
-      ref.addEventListener('error', () => handleError(index));
+      ref.addEventListener("waiting", handleBuffering);
+      ref.addEventListener("error", () => handleError(index));
+
       return () => {
         const cleanupRef = ref; // Copy ref value to a variable
-        cleanupRef.removeEventListener('waiting', handleBuffering);
-        cleanupRef.removeEventListener('error', () => handleError(index));
+        cleanupRef.removeEventListener("waiting", handleBuffering);
+        cleanupRef.removeEventListener("error", () => handleError(index));
       };
     });
   }, [videos]);
-  
+
+  useEffect(() => {
+    const connectionSpeed = navigator.connection.downlink;
+    setIsLowConnection(connectionSpeed < 1); // You can adjust the threshold for low connection as needed
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOfflineStatus);
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOfflineStatus);
+    };
+  }, []);
+
+  const handleSnackbarClose = () => {
+    // Close the snackbar
+    setErrorMessage(null);
+  };
 
   const handleBuffering = () => {
     setIsBuffering(true);
@@ -71,9 +90,9 @@ const VideoStreamingApp = () => {
 
   const handleError = (index) => {
     setIsBuffering(false);
-    setError(`Error loading video ${index}`); // Set error state on video loading error
+    setError(`Error loading video ${index}`);
+    setErrorMessage(`Error loading video ${index + 1}`); // Set error state on video loading error
   };
-
 
   const handleVideoSwitch = (nextIndex) => {
     setVideos((prevVideos) => {
@@ -99,6 +118,10 @@ const VideoStreamingApp = () => {
 
   const handleRecording = async () => {
     try {
+      if (!navigator.onLine) {
+        setNoInternetConnection(true);
+        return;
+      }
       const stream = await navigator.mediaDevices.getDisplayMedia({
         audio: true,
         video: true,
@@ -111,7 +134,8 @@ const VideoStreamingApp = () => {
       mediaRecorder.ondataavailable = (event) => {
         chunks.push(event.data);
         // Calculate recording progress
-        const progress = (event.timeStamp / mediaRecorder.stream.currentTime) * 100;
+        const progress =
+          (event.timeStamp / mediaRecorder.stream.currentTime) * 100;
         setRecordingProgress(progress);
       };
 
@@ -147,14 +171,48 @@ const VideoStreamingApp = () => {
     setIsMainRecording(false);
   };
 
+  const handleOnlineStatus = () => {
+    setNoInternetConnection(false);
+  };
+
+  const handleOfflineStatus = () => {
+    setNoInternetConnection(true);
+  };
+
   return (
     <div
       className="video-streaming-app"
-      style={{ display: "flex", flexDirection: "column", width: "100%" }}
+      style={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}
     >
-      {isRecording && <div>Recording in progress... {recordingProgress.toFixed(2)}%</div>}
-      {isBuffering && <CircularProgress />}
+      {isRecording && (
+        <div>Recording in progress... {recordingProgress.toFixed(2)}%</div>
+      )}
+      {noInternetConnection ? (
+        <Snackbar
+          open={noInternetConnection}
+          autoHideDuration={6000} // Adjust as needed
+          onClose={() => setNoInternetConnection(false)}
+          message="No internet connection"
+        />
+      ) : (
+        isLowConnection ? ( 
+          <CircularProgress size={100} />
+        ) : (
+          isBuffering && <CircularProgress style={{position: "absolute", top: "60%"}} />
+        )
+      )}
       {error && <div>{error}</div>}
+      <Snackbar
+        open={!!errorMessage} // Display snackbar if errorMessage is not null
+        autoHideDuration={6000} // Adjust as needed
+        onClose={handleSnackbarClose}
+        message={errorMessage}
+        action={
+          <Button color="secondary" size="small" onClick={handleSnackbarClose}>
+            Close
+          </Button>
+        }
+      />
       <div style={{ display: "flex", width: "100%" }}>
         <div
           className="main-video"
@@ -184,7 +242,7 @@ const VideoStreamingApp = () => {
             />
           )}
           {videos[0].isLoading && <CircularProgress />}
-          {videos[0].isError && <div>Error loading video</div>}
+          {videos[0].isError && <div style={{color: "red"}}>Error loading video</div>}
         </div>
         <div className="side-videos" style={{ width: "25%" }}>
           {videos.slice(1).map((video, index) => (
