@@ -1,70 +1,25 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+Steps to run the project -  my-video-task is a folder name then change the directory to video-task & then run the command npm start .
 
-In the project directory, you can run:
 
-### `npm start`
+Approach : 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Component Structure: The application is structured as a functional component named VideoStreamingApp, responsible for managing the video streaming interface and related functionality.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+State Management: React's useState hook is utilized to manage various states such as video URLs, playback status, buffering status, recording status, errors, etc.
 
-### `npm test`
+Effect Hooks: useEffect hooks are employed to handle side effects like setting up event listeners for video buffering and errors, checking network connectivity, and managing online/offline status.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Media Recording: Users can record their screen using the navigator.mediaDevices.getDisplayMedia() API. Media recording is facilitated through the MediaRecorder interface, with progress tracked during recording.
 
-### `npm run build`
+Event Handling: Functions are defined to handle events such as buffering, loaded data, errors, and video switching, updating the component state accordingly for a seamless user experience.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+UI Rendering: The component renders a user interface comprising main and side videos, playback controls, recording indicators, and error notifications. Material-UI components are utilized for styling and user interaction.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Libraries Used:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+React: A JavaScript library for building user interfaces.
+@mui/material: Material-UI components for React applications.
+@mui/icons-material: Material-UI icons for React applications.
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
