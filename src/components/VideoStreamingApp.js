@@ -222,7 +222,7 @@ const VideoStreamingApp = () => {
  
    {isModal && <LoginForm handleClose={handleClose} open={isModal} />}
       {isRecording && (
-        <div>Recording in progress...</div>
+         <p>Recording in progress... Progress: {recordingProgress.toFixed(2)}%</p>
       )}
       {isLowConnection ? (
         <CircularProgress size={80} style={{ position: "absolute"}} />
